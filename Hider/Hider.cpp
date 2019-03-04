@@ -34,7 +34,6 @@ int main()
 		}
 		cout << "\nWhat to do? ==> ";
 	}
-	//Encode();
 }
 
 void Encode() {
@@ -200,7 +199,6 @@ void Extract() {
 }
 
 string ReadFile(vector<char>& content) {
-	//const char* path = "C:\\Users\\N1tri\\Music\\2.mp3";
 	char path[260];
 	scanf_s("%s", path, 260);
 	FILE* pFile;

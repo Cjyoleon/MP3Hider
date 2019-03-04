@@ -1,13 +1,8 @@
-﻿// Hider.cpp : 此文件包含 "main" 函数。程序执行将在此处开始并结束。
-//
-
-#include "pch.h"
+﻿#include "pch.h"
 #include <iostream>
 #include <string>
-#include <fstream>
 #include <vector>
 #include <cstdio>
-#include <algorithm>
 #include <bitset>
 
 using namespace std;
@@ -37,7 +32,7 @@ int main()
 		else if (i == 2) {
 			Extract();
 		}
-		cout << "What to do? ==> ";
+		cout << "\nWhat to do? ==> ";
 	}
 	//Encode();
 }
@@ -49,18 +44,20 @@ void Encode() {
 	cout << "Carrier file: ";
 	if (ReadFile(carry) == "")
 		return;
-	//int capacity = GetMP3Capacity(carry);
-	//cout << "The capacity of the carrier file is " << capacity << endl;
+	int capacity = GetMP3Capacity(carry);
 
 	//Try syncing frames.
 	int header = ((carry[6] & 0x7F) << 21) + ((carry[7] & 0x7F) << 14) + ((carry[8] & 0x7F) << 7) + (carry[9] & 0x7F) + 10;
 	vector<char>::iterator iter = carry.begin() + header;
 
-	cout << "Secret file: ";
+	cout << "Secret file (Must be below " << capacity << " bytes): ";
 	string scr_ext,
 		scr_path = ReadFile(secret);
-	if (scr_path == "")
+	if (secret.size() * 8 > capacity) {
+		cout << "The hidden file is too large!";
 		return;
+	}
+
 
 	// Get secret file extension.
 	for (size_t i = scr_path.size() - 1; i > 0; --i) {
@@ -266,11 +263,10 @@ void writeBitrate(unsigned int bitrate, vector<char>::iterator iter) {
 }
 
 int GetMP3Capacity(vector<char> &carry) {
-	auto iter = carry.begin();
+	vector<char>::iterator iter = carry.begin();
 	int count = 0;
-	while (findNextFrame(carry, iter)) {
-		++iter;
-		++count;
-	}
+	while (findNextFrame(carry, ++iter))
+		if (getBitrate(iter) < 13)
+			++count;
 	return count;
 }
